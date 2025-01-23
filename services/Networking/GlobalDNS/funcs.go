@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/park-jun-woo/ncloud/services"
+	"github.com/park-jun-woo/ncloud-sdk-go/services"
 	"golang.org/x/net/publicsuffix"
 )
 
