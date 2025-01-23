@@ -1,1 +1,1 @@
-# ncloud api caller
+# Custom ncloud SDK for Go
