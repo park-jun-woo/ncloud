@@ -1,3 +1,3 @@
-module 3il.app/ncloud
+module github.com/park-jun-woo/ncloud
 
 go 1.23.5
