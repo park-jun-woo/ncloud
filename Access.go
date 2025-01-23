@@ -1,4 +1,4 @@
-package main
+package ncloud
 
 type Access struct {
 	AccessKey string

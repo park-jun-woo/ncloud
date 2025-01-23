@@ -1,4 +1,4 @@
-package main
+package ncloud
 
 import (
 	"crypto/hmac"
