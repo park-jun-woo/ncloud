@@ -107,6 +107,25 @@ func PostDomain(access *services.Access, domainName string, comments string) (*D
 	return GetDomain(access, domainName, false)
 }
 
+func ApplyDomain(access *services.Access, domainName string) (*Domain, error) {
+	domain, err := GetDomain(access, domainName, true)
+	if err != nil {
+		return nil, err
+	}
+
+	endpoint := "https://globaldns.apigw.ntruss.com"
+	url := fmt.Sprintf("/dns/v1/ncpdns/record/apply/%d", domain.Id)
+	resp, err := services.Request(access, "PUT", endpoint, url, nil)
+	if err != nil {
+		return domain, err
+	}
+	if resp.StatusCode != 200 {
+		return domain, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
+	}
+
+	return domain, nil
+}
+
 // 레코드 조회
 func GetRecord(access *services.Access, domainName string, recordType string, recordContent string, postDomain bool) (*Domain, *Record, error) {
 	_, host, err := GetDomainParts(domainName)
@@ -139,9 +158,9 @@ func GetRecord(access *services.Access, domainName string, recordType string, re
 	defer resp.Body.Close()
 
 	for _, record := range records.Content {
-		if host != "" && record.Host == host &&
-			recordType != "" && record.Type == recordType &&
-			recordContent != "" && record.Content == recordContent &&
+		if (host == "" || record.Host == host) &&
+			(recordType == "" || record.Type == recordType) &&
+			(recordContent == "" || record.Content == recordContent) &&
 			record.DelYn == false {
 			return domain, &record, nil
 		}
@@ -161,6 +180,13 @@ func SetRecord(access *services.Access, domainName string, recordType string, re
 	} else {
 		return putRecord(access, domain, domainName, record.Id, recordType, recordContent, recordTtl)
 	}
+
+	_, err = ApplyDomain(access, domainName)
+	if err != nil {
+		return domain, nil, err
+	}
+
+	return domain, nil, nil
 }
 
 // 레코드 등록
@@ -226,4 +252,32 @@ func putRecord(access *services.Access, domain *Domain, domainName string, recor
 	}
 
 	return GetRecord(access, domainName, recordType, recordContent, false)
+}
+
+func DeleteRecord(access *services.Access, domainName string, recordType string, recordContent string) error {
+	domain, record, err := GetRecord(access, domainName, recordType, recordContent, false)
+	if err != nil {
+		return err
+	}
+	if record == nil {
+		return fmt.Errorf("record(%s %s) is not exists.", domainName, recordType)
+	}
+
+	endpoint := "https://globaldns.apigw.ntruss.com"
+	url := fmt.Sprintf("/dns/v1/ncpdns/record/%d", domain.Id)
+	body := []int{record.Id}
+	resp, err := services.Request(access, "DELETE", endpoint, url, body)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != 200 {
+		return fmt.Errorf("Failed to HTTP DeleteRecord: %v", resp)
+	}
+
+	_, err = ApplyDomain(access, domainName)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
