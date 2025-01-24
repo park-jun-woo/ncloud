@@ -3,7 +3,9 @@ package CertificateManager
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"github.com/park-jun-woo/ncloud-sdk-go/services"
+	"github.com/park-jun-woo/ncloud-sdk-go/services/Networking/GlobalDNS"
 
 )
 
@@ -43,6 +45,13 @@ type CertificateReturn struct {
 	SslCertificateList []Certificate `json:"sslCertificateList"`
 }
 
+type ExternalCertificate struct {
+	CertificateName string `json:"certificateName"`
+	PrivateKey string `json:"privateKey"`
+	PublicKeyCertificate string `json:"publicKeyCertificate"`
+	CertificateChain string `json:"certificateChain"`
+}
+
 func GetCertificates(access *services.Access) (*Certificates, error) {
 	endpoint := "https://certificatemanager.apigw.ntruss.com"
 	url := "/api/v1/certificates"
@@ -64,14 +73,21 @@ func GetCertificates(access *services.Access) (*Certificates, error) {
 	return &certificates, nil
 }
 
-func CreateExternalCertificate(access *services.Access, certificateName string, privateKey string, publicKeyCertificate string, certificateBody string, rootCA string) (*Certificate, error) {
+func CreateExternalCertificate(access *services.Access, certificateName string, privateKey string, certificateBody string, certificateChain string, rootCA string) (*Certificate, error) {
 	endpoint := "https://certificatemanager.apigw.ntruss.com"
 	url := "/api/v1/certificate/withExternal"
-	body := map[string]interface{}{
-		"certificateName": certificateName,
-		"privateKey": privateKey,
-		"publicKeyCertificate": publicKeyCertificate,
-		"certificateChain": certificateBody+rootCA,
+	
+	rootDomain, subdomain, err := GlobalDNS.GetDomainNames(certificateName)
+	certificateName = rootDomain;
+	if subdomain != "" {
+		certificateName = rootDomain + "-" + strings.ReplaceAll(subdomain, ".", "-")
+	}
+
+	body := ExternalCertificate{
+		CertificateName: certificateName,
+		PrivateKey: cleanPEM(privateKey),
+		PublicKeyCertificate: cleanPEM(certificateBody),
+		CertificateChain: cleanPEM(certificateChain)+"\n"+cleanPEM(rootCA),
 	}
 	resp, err := services.Request(access, "POST", endpoint, url, body)
 	if err != nil {
@@ -97,5 +113,9 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 		}
 	}
 
-	return nil, fmt.Errorf("Failed to CreateExternalCertificate: %v", certificateReturn)
+	return nil, fmt.Errorf("Failed to CreateExternalCertificate?: %v", certificateReturn)
+}
+
+func cleanPEM(pem string) string {
+	return strings.TrimSpace(strings.ReplaceAll(pem, "\r\n", "\n"))
 }

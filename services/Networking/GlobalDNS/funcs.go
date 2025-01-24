@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"log"
+	"strings"
 
 	"github.com/park-jun-woo/ncloud-sdk-go/services"
 	"golang.org/x/net/publicsuffix"
@@ -23,6 +24,29 @@ func GetDomainParts(domainName string) (string, string, error) {
 	}
 
 	return eTLDPlusOne, subdomain, nil
+}
+
+func GetDomainNames(domainName string) (string, string, error) {
+	// Get the effective top-level domain plus one (eTLD+1), which is the root domain
+	eTLDPlusOne, err := publicsuffix.EffectiveTLDPlusOne(domainName)
+	if err != nil {
+		return domainName, "", nil
+	}
+
+	// Extract the root domain name without the TLD
+	splitDomain := strings.SplitN(eTLDPlusOne, ".", 2)
+	if len(splitDomain) < 2 {
+		return "", "", fmt.Errorf("unable to extract root domain from: %v", eTLDPlusOne)
+	}
+	rootDomain := splitDomain[0]
+
+	// Extract subdomain if it exists
+	subdomain := ""
+	if domainName != eTLDPlusOne {
+		subdomain = strings.TrimSuffix(domainName, "."+eTLDPlusOne)
+	}
+
+	return rootDomain, subdomain, nil
 }
 
 // 도메인 조회
@@ -105,7 +129,7 @@ func GetRecord(access *services.Access, domainName string, recordType string, re
 		return domain, nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Failed to HTTP GetRecord: %v", resp)
+		return domain, nil, fmt.Errorf("Failed to HTTP GetRecord: %v", resp)
 	}
 
 	records := Records{}
