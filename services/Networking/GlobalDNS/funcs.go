@@ -37,6 +37,9 @@ func GetDomain(access *services.Access, domainName string, postDomain bool) (*Do
 	if err != nil {
 		return nil, err
 	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Failed to HTTP GetDomain: %v", resp)
+	}
 
 	domains := Domains{}
 	if err := json.NewDecoder(resp.Body).Decode(&domains); err != nil {
@@ -73,12 +76,11 @@ func PostDomain(access *services.Access, domainName string, comments string) (*D
 	if err != nil {
 		return nil, err
 	}
-
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Failed to PostDomain: %v", resp)
-	} else {
-		return GetDomain(access, domainName, false)
+		return nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
 	}
+
+	return GetDomain(access, domainName, false)
 }
 
 // 레코드 조회
@@ -101,6 +103,9 @@ func GetRecord(access *services.Access, domainName string, recordType string, re
 	resp, err := services.Request(access, "GET", endpoint, url, nil)
 	if err != nil {
 		return domain, nil, err
+	}
+	if resp.StatusCode != 200 {
+		return nil, fmt.Errorf("Failed to HTTP GetRecord: %v", resp)
 	}
 
 	records := Records{}
@@ -159,12 +164,11 @@ func PostRecord(access *services.Access, domain *Domain, domainName string, reco
 	if err != nil {
 		return domain, nil, err
 	}
-
 	if resp.StatusCode != 200 {
-		return domain, nil, fmt.Errorf("Failed to PostDomain: %v", resp)
-	} else {
-		return GetRecord(access, domainName, recordType, recordContent, false)
+		return domain, nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
 	}
+	
+	return GetRecord(access, domainName, recordType, recordContent, false)
 }
 
 // 레코드 수정
@@ -193,10 +197,9 @@ func putRecord(access *services.Access, domain *Domain, domainName string, recor
 	if err != nil {
 		return domain, nil, err
 	}
-
 	if resp.StatusCode != 200 {
-		return domain, nil, fmt.Errorf("Failed to PostDomain: %v", resp)
-	} else {
-		return GetRecord(access, domainName, recordType, recordContent, false)
+		return domain, nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
 	}
+
+	return GetRecord(access, domainName, recordType, recordContent, false)
 }
