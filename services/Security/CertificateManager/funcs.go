@@ -4,52 +4,56 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"github.com/park-jun-woo/ncloud-sdk-go/services"
-	"github.com/park-jun-woo/ncloud-sdk-go/services/Networking/GlobalDNS"
 
+	"parkjunwoo.com/ncloud-sdk-go/services"
+	"parkjunwoo.com/ncloud-sdk-go/services/Networking/GlobalDNS"
 )
 
 type Certificates struct {
-	ReturnCode string `json:"returnCode"`
-	ReturnMessage string `json:"returnMessage"`
-	TotalRows int `json:"totalRows"`
+	ReturnCode         string        `json:"returnCode"`
+	ReturnMessage      string        `json:"returnMessage"`
+	TotalRows          int           `json:"totalRows"`
 	SslCertificateList []Certificate `json:"sslCertificateList"`
 }
 
 type Certificate struct {
-	CertificateNo int `json:"certificateNo"`
-	CertificateType string `json:"certificateType"`
-	CertificateName string `json:"certificateName"`
-	MemberNo string `json:"memberNo"`
-	DnInfo string `json:"dnInfo"`
-	DomainAddress string `json:"domainAddress"`
-	RegDate string `json:"regDate"`
-	UpdateDate string `json:"updateDate"`
-	IssueDate string `json:"issueDate"`
-	ValidStartDate string `json:"validStartDate"`
-	ValidEndDate string `json:"validEndDate"`
-	StatusCode string `json:"statusCode"`
-	StatusName string `json:"statusName"`
-	ExternalYn string `json:"externalYn"`
-	DomainCode string `json:"domainCode"`
-	CaInfo string `json:"caInfo"`
-	CertSerialNumber string `json:"certSerialNumber"`
-	CertPublicKeyInfo string `json:"certPublicKeyInfo"`
+	CertificateNo         int    `json:"certificateNo"`
+	CertificateType       string `json:"certificateType"`
+	CertificateName       string `json:"certificateName"`
+	MemberNo              string `json:"memberNo"`
+	DnInfo                string `json:"dnInfo"`
+	DomainAddress         string `json:"domainAddress"`
+	RegDate               string `json:"regDate"`
+	UpdateDate            string `json:"updateDate"`
+	IssueDate             string `json:"issueDate"`
+	ValidStartDate        string `json:"validStartDate"`
+	ValidEndDate          string `json:"validEndDate"`
+	StatusCode            string `json:"statusCode"`
+	StatusName            string `json:"statusName"`
+	ExternalYn            string `json:"externalYn"`
+	DomainCode            string `json:"domainCode"`
+	CaInfo                string `json:"caInfo"`
+	CertSerialNumber      string `json:"certSerialNumber"`
+	CertPublicKeyInfo     string `json:"certPublicKeyInfo"`
 	CertSignAlgorithmName string `json:"certSignAlgorithmName"`
 }
 
 type CertificateReturn struct {
-	ReturnCode string `json:"returnCode"`
-	ReturnMessage string `json:"returnMessage"`
-	TotalRows int `json:"totalRows"`
+	ReturnCode         string        `json:"returnCode"`
+	ReturnMessage      string        `json:"returnMessage"`
+	TotalRows          int           `json:"totalRows"`
 	SslCertificateList []Certificate `json:"sslCertificateList"`
 }
 
 type ExternalCertificate struct {
-	CertificateName string `json:"certificateName"`
-	PrivateKey string `json:"privateKey"`
+	CertificateName      string `json:"certificateName"`
+	PrivateKey           string `json:"privateKey"`
 	PublicKeyCertificate string `json:"publicKeyCertificate"`
-	CertificateChain string `json:"certificateChain"`
+	CertificateChain     string `json:"certificateChain"`
+}
+
+func cleanPEM(pem string) string {
+	return strings.TrimSpace(strings.ReplaceAll(pem, "\r\n", "\n"))
 }
 
 func GetCertificates(access *services.Access) (*Certificates, error) {
@@ -59,7 +63,7 @@ func GetCertificates(access *services.Access) (*Certificates, error) {
 	if err != nil {
 		return nil, err
 	}
-	
+
 	certificates := Certificates{}
 	if err := json.NewDecoder(resp.Body).Decode(&certificates); err != nil {
 		return nil, fmt.Errorf("Failed to GetCertificates JSON: %v", err)
@@ -76,18 +80,18 @@ func GetCertificates(access *services.Access) (*Certificates, error) {
 func CreateExternalCertificate(access *services.Access, certificateName string, privateKey string, certificateBody string, certificateChain string, rootCA string) (*Certificate, error) {
 	endpoint := "https://certificatemanager.apigw.ntruss.com"
 	url := "/api/v1/certificate/withExternal"
-	
+
 	rootDomain, subdomain, err := GlobalDNS.GetDomainNames(certificateName)
-	certificateName = rootDomain;
+	certificateName = rootDomain
 	if subdomain != "" {
 		certificateName = rootDomain + "-" + strings.ReplaceAll(subdomain, ".", "-")
 	}
 
 	body := ExternalCertificate{
-		CertificateName: certificateName,
-		PrivateKey: cleanPEM(privateKey),
+		CertificateName:      certificateName,
+		PrivateKey:           cleanPEM(privateKey),
 		PublicKeyCertificate: cleanPEM(certificateBody),
-		CertificateChain: cleanPEM(certificateChain)+"\n"+cleanPEM(rootCA),
+		CertificateChain:     cleanPEM(certificateChain) + "\n" + cleanPEM(rootCA),
 	}
 	resp, err := services.Request(access, "POST", endpoint, url, body)
 	if err != nil {
@@ -96,7 +100,7 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 	if resp.StatusCode != 200 {
 		return nil, fmt.Errorf("Failed to HTTP CreateExternalCertificate: %v", resp)
 	}
-	
+
 	certificateReturn := CertificateReturn{}
 	if err := json.NewDecoder(resp.Body).Decode(&certificateReturn); err != nil {
 		return nil, fmt.Errorf("Failed to CreateExternalCertificate JSON: %v", err)
@@ -116,6 +120,6 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 	return nil, fmt.Errorf("Failed to CreateExternalCertificate?: %v", certificateReturn)
 }
 
-func cleanPEM(pem string) string {
-	return strings.TrimSpace(strings.ReplaceAll(pem, "\r\n", "\n"))
+func DeleteCertificate() {
+
 }

@@ -23,7 +23,7 @@ Welcome to the **NCloud SDK for Go**! This SDK provides a convenient way to inte
 To install the NCloud SDK for Go, use the following `go get` command:
 
 ```bash
-go get github.com/park-jun-woo/ncloud-sdk-go
+go get parkjunwoo.com/ncloud-sdk-go
 ```
 
 Ensure that you have Go installed on your system. If not, download and install it from [golang.org](https://golang.org/).
@@ -35,7 +35,7 @@ Follow these steps to get started with the NCloud SDK for Go:
 1. Import the SDK in your Go application:
 
     ```go
-    import "github.com/park-jun-woo/ncloud-sdk-go"
+    import "parkjunwoo.com/ncloud-sdk-go"
     ```
 
 2. Initialize the SDK by providing your NCloud credentials:
@@ -69,8 +69,8 @@ import (
     "fmt"
     "log"
 
-    "github.com/park-jun-woo/ncloud-sdk-go/services"
-    "github.com/park-jun-woo/ncloud-sdk-go/services/Networking/GlobalDNS"
+    "parkjunwoo.com/ncloud-sdk-go/services"
+    "parkjunwoo.com/ncloud-sdk-go/services/Networking/GlobalDNS"
 )
 
 func main() {

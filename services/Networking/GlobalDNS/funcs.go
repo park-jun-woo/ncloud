@@ -6,8 +6,8 @@ import (
 	"log"
 	"strings"
 
-	"github.com/park-jun-woo/ncloud-sdk-go/services"
 	"golang.org/x/net/publicsuffix"
+	"parkjunwoo.com/ncloud-sdk-go/services"
 )
 
 // 루트 도메인과 서브도메인을 분리하는 함수수
@@ -217,7 +217,7 @@ func PostRecord(access *services.Access, domain *Domain, domainName string, reco
 	if resp.StatusCode != 200 {
 		return domain, nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
 	}
-	
+
 	return GetRecord(access, domainName, recordType, recordContent, false)
 }
 
