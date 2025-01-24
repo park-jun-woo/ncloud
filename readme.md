@@ -101,7 +101,7 @@ func main() {
 
 ## Documentation
 
-For detailed API documentation and usage instructions, please refer to the [official documentation](https://github.com/park-jun-woo/ncloud-sdk-go/wiki).
+For detailed API documentation and usage instructions, please refer to the [official documentation](https://api.ncloud-docs.com/docs).
 
 ## Contributing
 
