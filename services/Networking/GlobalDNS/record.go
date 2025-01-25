@@ -29,12 +29,12 @@ func GetRecord(access *services.Access, domainName string, recordType string, re
 		return domain, nil, err
 	}
 	if resp.StatusCode != 200 {
-		return domain, nil, fmt.Errorf("Failed to HTTP GetRecord: %v", resp)
+		return domain, nil, fmt.Errorf("failed to HTTP GetRecord: %v", resp)
 	}
 
 	records := Records{}
 	if err := json.NewDecoder(resp.Body).Decode(&records); err != nil {
-		return domain, nil, fmt.Errorf("Failed to GetRecord JSON: %v", err)
+		return domain, nil, fmt.Errorf("failed to GetRecord JSON: %v", err)
 	}
 	defer resp.Body.Close()
 
@@ -100,7 +100,7 @@ func PostRecord(access *services.Access, domain *Domain, domainName string, reco
 		return domain, nil, err
 	}
 	if resp.StatusCode != 200 {
-		return domain, nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
+		return domain, nil, fmt.Errorf("failed to HTTP PostDomain: %v", resp)
 	}
 
 	return GetRecord(access, domainName, recordType, recordContent, false)
@@ -133,7 +133,7 @@ func putRecord(access *services.Access, domain *Domain, domainName string, recor
 		return domain, nil, err
 	}
 	if resp.StatusCode != 200 {
-		return domain, nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
+		return domain, nil, fmt.Errorf("failed to HTTP PostDomain: %v", resp)
 	}
 
 	return GetRecord(access, domainName, recordType, recordContent, false)
@@ -157,7 +157,7 @@ func DeleteRecord(access *services.Access, domainName string, recordType string,
 		return err
 	}
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("Failed to HTTP DeleteRecord: %v", resp)
+		return fmt.Errorf("failed to HTTP DeleteRecord: %v", resp)
 	}
 
 	_, err = ApplyDomain(access, domainName)

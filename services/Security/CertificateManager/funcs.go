@@ -66,12 +66,12 @@ func GetCertificates(access *services.Access) (*Certificates, error) {
 
 	certificates := Certificates{}
 	if err := json.NewDecoder(resp.Body).Decode(&certificates); err != nil {
-		return nil, fmt.Errorf("Failed to GetCertificates JSON: %v", err)
+		return nil, fmt.Errorf("failed to GetCertificates JSON: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if certificates.ReturnCode != "0" {
-		return nil, fmt.Errorf("Failed to GetCertificates: %v", certificates)
+		return nil, fmt.Errorf("failed to GetCertificates: %v", certificates)
 	}
 
 	return &certificates, nil
@@ -98,17 +98,17 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Failed to HTTP CreateExternalCertificate: %v", resp)
+		return nil, fmt.Errorf("failed to HTTP CreateExternalCertificate: %v", resp)
 	}
 
 	certificateReturn := CertificateReturn{}
 	if err := json.NewDecoder(resp.Body).Decode(&certificateReturn); err != nil {
-		return nil, fmt.Errorf("Failed to CreateExternalCertificate JSON: %v", err)
+		return nil, fmt.Errorf("failed to CreateExternalCertificate JSON: %v", err)
 	}
 	defer resp.Body.Close()
 
 	if certificateReturn.ReturnCode != "0" {
-		return nil, fmt.Errorf("Failed to CreateExternalCertificate: %v", certificateReturn)
+		return nil, fmt.Errorf("failed to CreateExternalCertificate: %v", certificateReturn)
 	}
 
 	for _, certificate := range certificateReturn.SslCertificateList {
@@ -117,7 +117,7 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 		}
 	}
 
-	return nil, fmt.Errorf("Failed to CreateExternalCertificate?: %v", certificateReturn)
+	return nil, fmt.Errorf("failed to CreateExternalCertificate?: %v", certificateReturn)
 }
 
 func DeleteCertificate() {

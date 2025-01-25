@@ -63,12 +63,12 @@ func GetDomain(access *services.Access, domainName string, postDomain bool) (*Do
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Failed to HTTP GetDomain: %v", resp)
+		return nil, fmt.Errorf("failed to HTTP GetDomain: %v", resp)
 	}
 
 	domains := Domains{}
 	if err := json.NewDecoder(resp.Body).Decode(&domains); err != nil {
-		return nil, fmt.Errorf("Failed to GetDomain JSON: %v", err)
+		return nil, fmt.Errorf("failed to GetDomain JSON: %v", err)
 	}
 	defer resp.Body.Close()
 
@@ -102,7 +102,7 @@ func PostDomain(access *services.Access, domainName string, comments string) (*D
 		return nil, err
 	}
 	if resp.StatusCode != 200 {
-		return nil, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
+		return nil, fmt.Errorf("failed to HTTP PostDomain: %v", resp)
 	}
 
 	return GetDomain(access, domainName, false)
@@ -121,7 +121,7 @@ func ApplyDomain(access *services.Access, domainName string) (*Domain, error) {
 		return domain, err
 	}
 	if resp.StatusCode != 200 {
-		return domain, fmt.Errorf("Failed to HTTP PostDomain: %v", resp)
+		return domain, fmt.Errorf("failed to HTTP PostDomain: %v", resp)
 	}
 
 	return domain, nil
