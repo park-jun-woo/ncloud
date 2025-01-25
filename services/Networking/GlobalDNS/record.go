@@ -58,9 +58,12 @@ func SetRecord(access *services.Access, domainName string, recordType string, re
 	}
 
 	if record == nil {
-		return PostRecord(access, domain, domainName, recordType, recordContent, recordTtl)
+		_, _, err = PostRecord(access, domain, domainName, recordType, recordContent, recordTtl)
 	} else {
-		return putRecord(access, domain, domainName, record.Id, recordType, recordContent, recordTtl)
+		_, _, err = putRecord(access, domain, domainName, record.Id, recordType, recordContent, recordTtl)
+	}
+	if err != nil {
+		return domain, nil, err
 	}
 
 	_, err = ApplyDomain(access, domainName)
