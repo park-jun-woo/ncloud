@@ -82,6 +82,9 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 	url := "/api/v1/certificate/withExternal"
 
 	rootDomain, subdomain, err := GlobalDNS.GetDomainNames(certificateName)
+	if err != nil {
+		return nil, err
+	}
 	certificateName = rootDomain
 	if subdomain != "" {
 		certificateName = rootDomain + "-" + strings.ReplaceAll(subdomain, ".", "-")
