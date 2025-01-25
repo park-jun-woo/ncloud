@@ -85,10 +85,12 @@ func CreateExternalCertificate(access *services.Access, certificateName string, 
 	if err != nil {
 		return nil, err
 	}
-	certificateName = rootDomain
 	if subdomain != "" {
-		certificateName = rootDomain + "-" + strings.ReplaceAll(subdomain, ".", "-")
+		certificateName = "c-" + rootDomain + "-" + strings.ReplaceAll(subdomain, ".", "-")
+	} else {
+		certificateName = "c-" + rootDomain
 	}
+	fmt.Printf("certificateName: %v\n", certificateName)
 
 	body := ExternalCertificate{
 		CertificateName:      certificateName,
